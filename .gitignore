@@ -1,8 +1,7 @@
-# Ignore heavy binary files
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+.trash/
 *.zip
 *.exe
 *.dll
 *.csv
-*.png
-*.jpg
-*.webp
