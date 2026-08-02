@@ -1,0 +1,8 @@
+# Ignore heavy binary files
+*.zip
+*.exe
+*.dll
+*.csv
+*.png
+*.jpg
+*.webp

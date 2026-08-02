@@ -1,0 +1,23 @@
+﻿{
+    "templates_pairs":  [
+
+                        ],
+    "shell_path":  "",
+    "enable_folder_templates":  false,
+    "enable_ribbon_icon":  true,
+    "enabled_templates_hotkeys":  [
+
+                                  ],
+    "trigger_on_file_creation":  false,
+    "syntax_highlighting":  true,
+    "user_scripts_folder":  "",
+    "syntax_highlighting_mobile":  false,
+    "auto_jump_to_cursor":  false,
+    "enable_system_commands":  false,
+    "startup_templates":  [
+
+                          ],
+    "folder_templates":  [
+
+                         ]
+}

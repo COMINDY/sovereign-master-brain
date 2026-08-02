@@ -1,0 +1,84 @@
+//==============================================================================
+// QUANTUM TUNNELING PREDICTOR v2 (REBUILT BY SOVEREIGN QUANT ENGINE)
+// Language: Pine Script v5 (TradingView)
+// Core Innovation:
+//   - Rebuilt State Machine: Uses Quantum Probability Collapse as Mean-Reversion Exhaustion
+//   - Integrated Volatility Compression Filter & Upper/Lower Wick Rejections
+//==============================================================================
+//@version=5
+indicator("Quantum Tunneling Predictor v2 [Sovereign Edition]", overlay=true)
+
+//=====================
+// Inputs
+//=====================
+lookback          = input.int(90, "Quantum Lookback Period", minval=10)
+tunnelSensitivity = input.float(3.0, "Quantum Tunnel Sensitivity", step=0.1)
+collapseThreshold = input.float(0.80, "Probability Collapse Threshold", step=0.01)
+
+useTrendFilter    = input.bool(true, "Use Macro Trend Filter")
+trendLength       = input.int(100, "Macro Trend EMA")
+useWickFilter     = input.bool(true, "Use Rejection Wick Filter")
+minWickSize       = input.float(0.30, "Min Rejection Wick Ratio", step=0.05)
+
+//=====================
+// Quantum Barrier Setup
+//=====================
+barrierHigh = ta.highest(high[1], lookback)
+barrierLow  = ta.lowest(low[1], lookback)
+
+//=====================
+// ATR & Volatility Normalization
+//=====================
+atr = ta.sma(ta.tr(true), lookback)
+safeATR = math.max(atr, 0.00001)
+
+momentum = close - close[1]
+normMomentum = momentum / safeATR
+
+//=====================
+// Quantum Probability Wave Calculation
+//=====================
+distTop = (barrierHigh - close) / safeATR
+zUp = normMomentum - distTop
+probUpRaw = math.exp(zUp * tunnelSensitivity)
+probUp = math.min(1.0, math.max(0.0, probUpRaw))
+
+distBottom = (close - barrierLow) / safeATR
+zDown = (-normMomentum) - distBottom
+probDownRaw = math.exp(zDown * tunnelSensitivity)
+probDown = math.min(1.0, math.max(0.0, probDownRaw))
+
+//=====================
+// Rejection Wick Calculation
+//=====================
+barRange = high - low
+upperWick = barRange > 0 ? (high - math.max(open, close)) / barRange : 0.0
+lowerWick = barRange > 0 ? (math.min(open, close) - low) / barRange : 0.0
+
+upperWickValid = useWickFilter ? upperWick >= minWickSize : true
+lowerWickValid = useWickFilter ? lowerWick >= minWickSize : true
+
+//=====================
+// Macro Trend Filter
+//=====================
+emaTrend = ta.ema(close, trendLength)
+trendLongAllowed  = useTrendFilter ? close > emaTrend : true
+trendShortAllowed = useTrendFilter ? close < emaTrend : true
+
+//=====================
+// Rebuilt Inverse State Machine (Exhaustion Reversal)
+//=====================
+shortSignal = probUp > collapseThreshold and upperWickValid and trendShortAllowed
+longSignal  = probDown > collapseThreshold and lowerWickValid and trendLongAllowed
+
+//=====================
+// Plots & Visuals
+//=====================
+plot(barrierHigh, "Quantum Upper Barrier", color=color.new(color.red, 20), linewidth=2)
+plot(barrierLow, "Quantum Lower Barrier", color=color.new(color.green, 20), linewidth=2)
+plot(useTrendFilter ? emaTrend : na, "Macro Trend EMA", color=color.new(color.yellow, 30), linewidth=1)
+
+plotshape(longSignal, title="Quantum BUY", style=shape.triangleup, color=color.aqua, size=size.small, location=location.belowbar)
+plotshape(shortSignal, title="Quantum SELL", style=shape.triangledown, color=color.orange, size=size.small, location=location.abovebar)
+
+barcolor(longSignal ? color.aqua : shortSignal ? color.orange : na)
